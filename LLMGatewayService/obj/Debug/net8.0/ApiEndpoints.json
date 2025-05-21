@@ -1,0 +1,18 @@
+[
+  {
+    "ContainingType": "LLMGatewayService.Controllers.LlmController",
+    "Method": "PostRpcRequest",
+    "RelativePath": "llm",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "LLMGatewayService.Models.RpcRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]

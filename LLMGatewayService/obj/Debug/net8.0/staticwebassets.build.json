@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "Picct2BwoMWu8WWw5+TOnEk1J8VF5tOwT/5wfFUyovs=",
+  "Source": "LLMGatewayService",
+  "BasePath": "_content/LLMGatewayService",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
