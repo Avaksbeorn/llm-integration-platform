@@ -1,0 +1,28 @@
+[
+  {
+    "ContainingType": "LLMGatewayService.Controllers.LlmController",
+    "Method": "PostRpcRequest",
+    "RelativePath": "llm",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "LLMGatewayService.Models.RpcRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LLMGatewayService.Controllers.TestController",
+    "Method": "WhoAmI",
+    "RelativePath": "test/whoami",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  }
+]

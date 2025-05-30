@@ -1,0 +1,133 @@
+services:
+  llm:
+    build:
+      context: ./LlmModelContainer
+    image: llm-openllama
+    container_name: llm
+    ports:
+      - "8000:8000"
+    networks:
+      - backend_net
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: authdb
+    ports:
+      - "5433:5432"
+    networks:
+      - backend_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d authdb"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - backend_net
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "status"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
+  authservice:
+    build:
+      context: ./AuthService
+    ports:
+      - "5001:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__AuthDbConnection=Host=postgres;Port=5432;Username=user;Password=pass;Database=authdb
+      - JWT__Secret=LCHyxpUeV9brLe48271HAyiimOuIO139kD3doGHTPZo=
+      - JWT__Issuer=YourApp
+      - JWT__Audience=YourApp
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - backend_net
+
+  llmgatewayservice:
+    build:
+      context: .
+      dockerfile: LLMGatewayService/Dockerfile
+    ports:
+      - "5002:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - JWT__Secret=LCHyxpUeV9brLe48271HAyiimOuIO139kD3doGHTPZo=
+      - JWT__Issuer=YourApp
+      - JWT__Audience=YourApp
+      - LLM__Endpoint=http://llm:8000/v1/completions
+    depends_on:
+      llm:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - backend_net
+      
+  loggingservice:
+    build:
+      context: .
+      dockerfile: LoggingService/Dockerfile
+
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__LogsDb=Host=postgres;Port=5432;Username=user;Password=pass;Database=logsdb
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - backend_net
+      
+  apigateway:
+    build:
+      context: .
+      dockerfile: ApiGateway/Dockerfile
+    ports:
+      - "5000:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - JWT__Secret=LCHyxpUeV9brLe48271HAyiimOuIO139kD3doGHTPZo=
+      - JWT__Issuer=YourApp
+      - JWT__Audience=YourApp
+    depends_on:
+      authservice:
+        condition: service_healthy
+      llmgatewayservice:
+        condition: service_healthy
+    networks:
+      - backend_net
+
+  # llm-mock:
+  #   image: python:3.10-slim
+  #   command: >
+  #     sh -c "pip install flask && python -m flask --app /app/llm.py run --host=0.0.0.0 --port=8000"
+  #   volumes:
+  #     - ./llm-mock:/app
+  #   ports:
+  #     - "8000:8000"
+  #   networks:
+  #     - backend_net
+
+networks:
+  backend_net:
+    driver: bridge
