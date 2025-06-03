@@ -1,5 +1,48 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
-################################################################################
+﻿# Visual Studio и C# проекты
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
 
-/.vs
+# Папки с результатами сборки
+**/bin/
+**/obj/
+
+# Сборочные артефакты .NET
+*.dll
+*.exe
+*.pdb
+*.cache
+*.mdb
+
+# Пакеты NuGet (во время разработки они подтягиваются автоматически)
+**/packages/
+
+# Docker Compose (если у вас есть локальные override-файлы)
+*.env
+
+# Node.js (React фронтенд)
+frontend/node_modules/
+frontend/build/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# Python (llm-mock)
+llm-mock/__pycache__/
+**/*.py[cod]
+**/*$py.class
+
+# Логи и временные файлы
+*.log
+*.sqlite
+*.db
+
+# Системные файлы
+.DS_Store
+Thumbs.db
